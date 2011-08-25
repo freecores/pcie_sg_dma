@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<generated_project xmlns="http://www.xilinx.com/XMLSchema" xmlns:xil_pn="http://www.xilinx.com/XMLSchema">
+
+  <!--                                                          -->
+
+  <!--             For tool use only. Do not edit.              -->
+
+  <!--                                                          -->
+
+  <!-- ProjectNavigator created generated project file.         -->
+
+  <!-- For use in tracking generated file and other information -->
+
+  <!-- allowing preservation of process status.                 -->
+
+  <!--                                                          -->
+
+  <!-- Copyright (c) 1995-2010 Xilinx, Inc.  All rights reserved. -->
+
+  <version xmlns="http://www.xilinx.com/XMLSchema">11.1</version>
+
+  <sourceproject xmlns="http://www.xilinx.com/XMLSchema" xil_pn:fileType="FILE_XISE" xil_pn:name="dma_top.xise"/>
+
+  <files xmlns="http://www.xilinx.com/XMLSchema">
+    <file xil_pn:fileType="FILE_ASY" xil_pn:name="../cores/afifo_1024x72.asy" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="../cores/afifo_1024x72.ngc" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_SYMBOL" xil_pn:name="../cores/afifo_1024x72.sym" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VERILOG" xil_pn:name="../cores/afifo_1024x72.v" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VEO" xil_pn:name="../cores/afifo_1024x72.veo" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_VHDL" xil_pn:name="../cores/afifo_1024x72.vhd" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VHO" xil_pn:name="../cores/afifo_1024x72.vho" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_ASY" xil_pn:name="../cores/afifo_256x36.asy" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="../cores/afifo_256x36.ngc" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_SYMBOL" xil_pn:name="../cores/afifo_256x36.sym" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VERILOG" xil_pn:name="../cores/afifo_256x36.v" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VEO" xil_pn:name="../cores/afifo_256x36.veo" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_VHDL" xil_pn:name="../cores/afifo_256x36.vhd" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VHO" xil_pn:name="../cores/afifo_256x36.vho" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_ASY" xil_pn:name="../cores/afifo_256x36c_fwft.asy" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="../cores/afifo_256x36c_fwft.ngc" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_SYMBOL" xil_pn:name="../cores/afifo_256x36c_fwft.sym" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VERILOG" xil_pn:name="../cores/afifo_256x36c_fwft.v" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VEO" xil_pn:name="../cores/afifo_256x36c_fwft.veo" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_VHDL" xil_pn:name="../cores/afifo_256x36c_fwft.vhd" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VHO" xil_pn:name="../cores/afifo_256x36c_fwft.vho" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_ASY" xil_pn:name="../cores/afifo_8x8.asy" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="../cores/afifo_8x8.ngc" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_SYMBOL" xil_pn:name="../cores/afifo_8x8.sym" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VERILOG" xil_pn:name="../cores/afifo_8x8.v" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VEO" xil_pn:name="../cores/afifo_8x8.veo" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_VHDL" xil_pn:name="../cores/afifo_8x8.vhd" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VHO" xil_pn:name="../cores/afifo_8x8.vho" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="../cores/bram4096x64.ngc" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VERILOG" xil_pn:name="../cores/bram4096x64.v" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VEO" xil_pn:name="../cores/bram4096x64.veo" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_VHDL" xil_pn:name="../cores/bram4096x64.vhd" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VHO" xil_pn:name="../cores/bram4096x64.vho" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_ASY" xil_pn:name="../cores/eb_fifo_counted.asy" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="../cores/eb_fifo_counted.ngc" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_SYMBOL" xil_pn:name="../cores/eb_fifo_counted.sym" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VERILOG" xil_pn:name="../cores/eb_fifo_counted.v" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VEO" xil_pn:name="../cores/eb_fifo_counted.veo" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_VHDL" xil_pn:name="../cores/eb_fifo_counted.vhd" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VHO" xil_pn:name="../cores/eb_fifo_counted.vho" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="../cores/mBuf_128x72.ngc" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VERILOG" xil_pn:name="../cores/mBuf_128x72.v" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VEO" xil_pn:name="../cores/mBuf_128x72.veo" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_VHDL" xil_pn:name="../cores/mBuf_128x72.vhd" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VHO" xil_pn:name="../cores/mBuf_128x72.vho" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="../cores/pkt_counter_1024.ngc" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VERILOG" xil_pn:name="../cores/pkt_counter_1024.v" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VEO" xil_pn:name="../cores/pkt_counter_1024.veo" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_VHDL" xil_pn:name="../cores/pkt_counter_1024.vhd" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VHO" xil_pn:name="../cores/pkt_counter_1024.vho" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_ASY" xil_pn:name="../cores/prim_FIFO_plain.asy" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="../cores/prim_FIFO_plain.ngc" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_SYMBOL" xil_pn:name="../cores/prim_FIFO_plain.sym" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VERILOG" xil_pn:name="../cores/prim_FIFO_plain.v" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VEO" xil_pn:name="../cores/prim_FIFO_plain.veo" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_VHDL" xil_pn:name="../cores/prim_FIFO_plain.vhd" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VHO" xil_pn:name="../cores/prim_FIFO_plain.vho" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="../cores/v5pcie_ep_blk_plus_4x.ngc" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VERILOG" xil_pn:name="../cores/v5pcie_ep_blk_plus_4x.v" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VEO" xil_pn:name="../cores/v5pcie_ep_blk_plus_4x.veo" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_VHDL" xil_pn:name="../cores/v5pcie_ep_blk_plus_4x.vhd" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VHO" xil_pn:name="../cores/v5pcie_ep_blk_plus_4x.vho" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="../cores/v5sfifo_15x128.ngc" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VERILOG" xil_pn:name="../cores/v5sfifo_15x128.v" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VEO" xil_pn:name="../cores/v5sfifo_15x128.veo" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_VHDL" xil_pn:name="../cores/v5sfifo_15x128.vhd" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_VHO" xil_pn:name="../cores/v5sfifo_15x128.vho" xil_pn:origination="imported"/>
+  </files>
+
+  <transforms xmlns="http://www.xilinx.com/XMLSchema"/>
+
+</generated_project>
