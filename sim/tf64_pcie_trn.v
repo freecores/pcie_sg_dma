@@ -36,8 +36,6 @@
 `define  T_DELTA                            0.1
 `define  T_PIO_INTERVAL                    50.0
 `define  T_DMA_INTERVAL                   300.0
-//`define  T_DMA_TURN_AROUND                100.0
-//`define  T_STATISTIC_INTERVAL           10000.0
 `define  T_RX_NO_FC_PERIOD            1900000.0
 `define  T_TX_NO_FC_PERIOD            1500000.0
 
@@ -388,8 +386,8 @@ module tf64_pcie_trn();
       cfg_dcommand = 'H2000;
 		localID = 'HD841;
 
-      Rx_No_Flow_Control = 0;
-      Tx_No_Flow_Control = 0;
+      Rx_No_Flow_Control = 1;    // = 0;  // Set to 0 to enable the Rx throttling
+      Tx_No_Flow_Control = 1;    // = 0;  // Set to 0 to enable the Tx throttling
 
 		// Wait some nanoseconds for global reset to finish
 		#100;
@@ -463,7 +461,7 @@ module tf64_pcie_trn();
     PIO_bar               <= -1;
     DMA_bar               <= 'H1;
     Rx_MWr_Tag            <= 'H80;
-    Rx_MRd_Tag            <= 'H20;
+    Rx_MRd_Tag            <= 'H10;
 
 
     // Initialization: TLP
@@ -767,6 +765,17 @@ module tf64_pcie_trn();
        Gap_Insert_Rx;
 
 
+     # `T_DELTA     // Polling the DMA status
+       Hdr_Array[0] <= `HEADER0_MRD3_ | Rx_TLP_Length[9:0];
+       Hdr_Array[1] <= {`C_HOST_RDREQ_ID, 3'H3, Rx_MRd_Tag, 4'Hf, 4'Hf};
+       Hdr_Array[2] <= `C_ADDR_DMA_DS_STA;
+
+   
+     # `T_DELTA
+       TLP_Feed_Rx(`USE_PRIVATE, 'H0, `C_BAR0_HIT);
+       Rx_MRd_Tag       <= Rx_MRd_Tag + 1;
+       Gap_Insert_Rx;
+
        FSM_Trn          <= 'H18;
 
 
@@ -821,6 +830,19 @@ module tf64_pcie_trn();
      # `T_DELTA
        TLP_Feed_Rx(`USE_PUBLIC, CplD_Index, `C_NO_BAR_HIT);
        CplD_Index   <= CplD_Index + Rx_TLP_Length;
+       Gap_Insert_Rx;
+
+
+       Rx_TLP_Length    <= 'H01;
+     # `T_DELTA     // Polling the DMA status
+       Hdr_Array[0] <= `HEADER0_MRD3_ | Rx_TLP_Length[9:0];
+       Hdr_Array[1] <= {`C_HOST_RDREQ_ID, 3'H3, Rx_MRd_Tag, 4'Hf, 4'Hf};
+       Hdr_Array[2] <= `C_ADDR_DMA_DS_STA;
+
+   
+     # `T_DELTA
+       TLP_Feed_Rx(`USE_PRIVATE, 'H0, `C_BAR0_HIT);
+       Rx_MRd_Tag       <= Rx_MRd_Tag + 1;
        Gap_Insert_Rx;
 
 
@@ -903,6 +925,18 @@ module tf64_pcie_trn();
        Gap_Insert_Rx;
        Gap_Insert_Rx;
 
+
+       Rx_TLP_Length    <= 'H01;
+     # `T_DELTA     // Polling the DMA status
+       Hdr_Array[0] <= `HEADER0_MRD3_ | Rx_TLP_Length[9:0];
+       Hdr_Array[1] <= {`C_HOST_RDREQ_ID, 3'H3, Rx_MRd_Tag, 4'Hf, 4'Hf};
+       Hdr_Array[2] <= `C_ADDR_DMA_US_STA;
+
+   
+     # `T_DELTA
+       TLP_Feed_Rx(`USE_PRIVATE, 'H0, `C_BAR0_HIT);
+       Rx_MRd_Tag       <= Rx_MRd_Tag + 1;
+       Gap_Insert_Rx;
 
        FSM_Trn          <= 'H20;
 
@@ -1141,6 +1175,19 @@ module tf64_pcie_trn();
        Gap_Insert_Rx;
 
 
+       Rx_TLP_Length    <= 'H01;
+     # `T_DELTA     // Polling the DMA status
+       Hdr_Array[0] <= `HEADER0_MRD3_ | Rx_TLP_Length[9:0];
+       Hdr_Array[1] <= {`C_HOST_RDREQ_ID, 3'H3, Rx_MRd_Tag, 4'Hf, 4'Hf};
+       Hdr_Array[2] <= `C_ADDR_DMA_DS_STA;
+
+   
+     # `T_DELTA
+       TLP_Feed_Rx(`USE_PRIVATE, 'H0, `C_BAR0_HIT);
+       Rx_MRd_Tag       <= Rx_MRd_Tag + 1;
+       Gap_Insert_Rx;
+
+
        FSM_Trn          <= 'H2C;
 
 
@@ -1306,6 +1353,18 @@ module tf64_pcie_trn();
        Gap_Insert_Rx;
 
 
+       Rx_TLP_Length    <= 'H01;
+     # `T_DELTA     // Polling the DMA status
+       Hdr_Array[0] <= `HEADER0_MRD3_ | Rx_TLP_Length[9:0];
+       Hdr_Array[1] <= {`C_HOST_RDREQ_ID, 3'H3, Rx_MRd_Tag, 4'Hf, 4'Hf};
+       Hdr_Array[2] <= `C_ADDR_DMA_US_STA;
+
+   
+     # `T_DELTA
+       TLP_Feed_Rx(`USE_PRIVATE, 'H0, `C_BAR0_HIT);
+       Rx_MRd_Tag       <= Rx_MRd_Tag + 1;
+       Gap_Insert_Rx;
+
        FSM_Trn          <= 'H34;
 
 
@@ -1342,10 +1401,37 @@ module tf64_pcie_trn();
        Gap_Insert_Rx;
 
 
+       Rx_TLP_Length    <= 'H01;
+     # `T_DELTA     // Polling the DMA status
+       Hdr_Array[0] <= `HEADER0_MRD3_ | Rx_TLP_Length[9:0];
+       Hdr_Array[1] <= {`C_HOST_RDREQ_ID, 3'H3, Rx_MRd_Tag, 4'Hf, 4'Hf};
+       Hdr_Array[2] <= `C_ADDR_DMA_US_STA;
+
+   
+     # `T_DELTA
+       TLP_Feed_Rx(`USE_PRIVATE, 'H0, `C_BAR0_HIT);
+       Rx_MRd_Tag       <= Rx_MRd_Tag + 1;
+       Gap_Insert_Rx;
+
+
+     # (`T_DMA_INTERVAL*4)
+       ;
+
+       Rx_TLP_Length    <= 'H01;
+     # `T_DELTA     // Polling the DMA status
+       Hdr_Array[0] <= `HEADER0_MRD3_ | Rx_TLP_Length[9:0];
+       Hdr_Array[1] <= {`C_HOST_RDREQ_ID, 3'H3, Rx_MRd_Tag, 4'Hf, 4'Hf};
+       Hdr_Array[2] <= `C_ADDR_DMA_US_STA;
+
+   
+     # `T_DELTA
+       TLP_Feed_Rx(`USE_PRIVATE, 'H0, `C_BAR0_HIT);
+       Rx_MRd_Tag       <= Rx_MRd_Tag + 1;
+       Gap_Insert_Rx;
 
        FSM_Trn          <= 'H38;
 
-     # (`T_DMA_INTERVAL*8)
+     # (`T_DMA_INTERVAL*4)
        ;
 
 
@@ -1690,7 +1776,8 @@ module tf64_pcie_trn();
                   end
                   else if (tx_TLP_is_CplD) begin
                     Err_signal   <= 1;
-                    $display ("\n %t:\n !! CplD Requester ID Wrong (TLP Length ==1 )!! ", $time);
+                    $display ("\n %t:\n !! Tx CplD Requester ID Wrong (TLP Length ==1 )!! ", $time);
+                    FSM_TLP_Fmt      <= 'H10;
                   end
                   else begin
                     Err_signal    <= 0;
@@ -1710,7 +1797,8 @@ module tf64_pcie_trn();
                   end
                   else if (tx_TLP_is_CplD) begin
                     Err_signal   <= 1;
-                    $display ("\n %t:\n !! CplD Requester ID Wrong (TLP Length !=1 )!! ", $time);
+                    $display ("\n %t:\n !! Tx CplD Requester ID Wrong (TLP Length !=1 )!! ", $time);
+                    FSM_TLP_Fmt        <= 'H20;
                   end
                   else begin
                     tx_TLP_Length      <= tx_TLP_Length - 1;
