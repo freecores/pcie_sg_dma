@@ -267,7 +267,7 @@ architecture Behavioral of v5pcieDMA is
    -- -----------------------------------------------------------------------
    -- FIFO module
    --      16K x 8B
-   component eb_wrapper
+   component FIFO_wrapper
      port (
            wr_clk      : IN  std_logic;
            wr_en       : IN  std_logic;
@@ -314,266 +314,266 @@ architecture Behavioral of v5pcieDMA is
    signal  tab_wa             : STD_LOGIC_VECTOR (12-1 downto 0);
    signal  tab_wd             : STD_LOGIC_VECTOR (C_DBUS_WIDTH-1 downto 0);
 
-   signal  dg_running         : STD_LOGIC;
-   signal  dg_mask            : STD_LOGIC;
-   signal  dg_rst             : STD_LOGIC;
-
-   -- debug signal
-   signal  dg_debug_led       : STD_LOGIC;
-
-   -- Protocol Interface module
-   COMPONENT protocol_IF
-   PORT (
-           -- DAQ Tx
-           data2send_start          : OUT   std_logic;
-           data2send_end            : OUT   std_logic;
-           data2send                : OUT   std_logic_vector(64-1 downto 0);
-           crc_error_send           : OUT   std_logic;
-           data2send_stop           : IN    std_logic;
-
-           -- DAQ Rx
-           data_rec_start           : IN    std_logic;
-           data_rec_end             : IN    std_logic;
-           data_rec                 : IN    std_logic_vector(64-1 downto 0);
-           crc_error_rec            : IN    std_logic;
-           data_rec_stop            : OUT   std_logic;
-
-           -- CTL Tx
-           ctrl2send_start          : OUT   std_logic;
-           ctrl2send_end            : OUT   std_logic;
-           ctrl2send                : OUT   std_logic_vector(16-1 downto 0);
-           ctrl2send_stop           : IN    std_logic;
-
-           -- CTL Rx
-           ctrl_rec_start           : IN    std_logic;
-           ctrl_rec_end             : IN    std_logic;
-           ctrl_rec                 : IN    std_logic_vector(16-1 downto 0);
-           ctrl_rec_stop            : OUT   std_logic;
-
-           -- DLM Tx
-           dlm2send_va              : OUT   std_logic;
-           dlm2send_type            : OUT   std_logic_vector(4-1 downto 0);
-
-           -- DLM Rx
-           dlm_rec_va               : IN    std_logic;
-           dlm_rec_type             : IN    std_logic_vector(4-1 downto 0);
-
-           -- Common signals
-           link_tx_clk              : IN    std_logic;
-           link_rx_clk              : IN    std_logic;
-           link_active              : IN    std_logic_vector(2-1 downto 0);
-           protocol_clk             : OUT   std_logic;
-           protocol_res_n           : OUT   std_logic;
-
-           -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-
-           -- Fabric side: DAQ Rx
-           daq_rv                   : IN    std_logic;
-           daq_rsof                 : IN    std_logic;
-           daq_reof                 : IN    std_logic;
-           daq_rd                   : IN    std_logic_vector(C_DBUS_WIDTH-1 downto 0);
-           daq_rstop                : OUT   std_logic;
-
-           -- Fabric side: DAQ Tx
-           daq_tv                   : OUT   std_logic;
-           daq_tsof                 : OUT   std_logic;
-           daq_teof                 : OUT   std_logic;
-           daq_td                   : OUT   std_logic_vector(C_DBUS_WIDTH-1 downto 0);
-           daq_tstop                : IN    std_logic;
-
-           -- Fabric side: DLM Rx
-           dlm_tv                   : IN    std_logic;
-           dlm_td                   : IN    std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-
-           -- Fabric side: DLM Tx
-           dlm_rv                   : OUT   std_logic;
-           dlm_rd                   : OUT   std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-
-           -- Fabric side: CTL Rx
-           ctl_rv                   : IN    std_logic;
-           ctl_rd                   : IN    std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-           ctl_rstop                : OUT   std_logic;
-
-           -- Fabric side: CTL Tx
-           ctl_ttake                : IN    std_logic;
-           ctl_tv                   : OUT   std_logic;
-           ctl_td                   : OUT   std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-           ctl_tstop                : IN    std_logic;
-
-           ctl_reset                : IN    std_logic;
-           ctl_status               : OUT   std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-
-           -- Interrupter triggers
-           DAQ_irq                  : OUT   std_logic;
-           CTL_irq                  : OUT   std_logic;
-           DLM_irq                  : OUT   std_logic;
-
-           -- Data generator table write port
-           tab_sel                  : IN    STD_LOGIC;
-           tab_we                   : IN    STD_LOGIC_VECTOR (2-1 downto 0);
-           tab_wa                   : IN    STD_LOGIC_VECTOR (12-1 downto 0);
-           tab_wd                   : IN    STD_LOGIC_VECTOR (64-1 downto 0);
-
-           -- DG control/status signal
-           dg_running               : OUT   STD_LOGIC;
-           dg_mask                  : IN    STD_LOGIC;
-           dg_rst                   : IN    STD_LOGIC;
-
-           -- DG debug signal
-           daq_start_led            : OUT   STD_LOGIC;
-
-           -- Fabric side: Common signals
-           trn_clk                  : IN    std_logic;
-           protocol_link_act        : OUT   std_logic_vector(2-1 downto 0);
-           protocol_rst             : IN    std_logic
-    );
-   END COMPONENT;
-
-   -- DAQ Tx
-   signal  data2send_start          : std_logic;
-   signal  data2send_end            : std_logic;
-   signal  data2send                : std_logic_vector(64-1 downto 0);
-   signal  crc_error_send           : std_logic;
-   signal  data2send_stop           : std_logic
-                                    := '0';
-
-   -- DAQ Rx
-   signal  data_rec_start           : std_logic;
-   signal  data_rec_end             : std_logic;
-   signal  data_rec                 : std_logic_vector(64-1 downto 0);
-   signal  crc_error_rec            : std_logic;
-   signal  data_rec_stop            : std_logic;
-
-   -- CTL Tx
-   signal  ctrl2send_start          : std_logic;
-   signal  ctrl2send_end            : std_logic;
-   signal  ctrl2send                : std_logic_vector(16-1 downto 0);
-   signal  ctrl2send_stop           : std_logic;
-
-   -- CTL Rx
-   signal  ctrl_rec_start           : std_logic;
-   signal  ctrl_rec_end             : std_logic;
-   signal  ctrl_rec                 : std_logic_vector(16-1 downto 0);
-   signal  ctrl_rec_stop            : std_logic;
-
-   -- DLM Tx
-   signal  dlm2send_va              : std_logic;
-   signal  dlm2send_type            : std_logic_vector(4-1 downto 0);
---   signal  dlm2send_va_i            : std_logic;
---   signal  dlm2send_type_i          : std_logic_vector(4-1 downto 0);
-
-   -- DLM Rx
-   signal  dlm_rec_va               : std_logic;
-   signal  dlm_rec_type             : std_logic_vector(4-1 downto 0);
---   signal  dlm_rec_va_i             : std_logic;
---   signal  dlm_rec_type_i           : std_logic_vector(4-1 downto 0);
-
-
-   -- Common signals
-   signal  link_rx_clk              : std_logic;
-   signal  link_tx_clk              : std_logic;
-   signal  link_active              : std_logic_vector(2-1 downto 0);
-   signal  protocol_clk             : std_logic;
-   signal  protocol_res_n           : std_logic;
-
-
-   -- Fabric side: DAQ Rx
-   signal  daq_rv                   : std_logic;
-   signal  daq_rsof                 : std_logic;
-   signal  daq_reof                 : std_logic;
-   signal  daq_rd                   : std_logic_vector(C_DBUS_WIDTH-1 downto 0);
-   signal  daq_rstop                : std_logic;
-
-   -- Fabric side: DAQ Tx
-   signal  daq_tv                   : std_logic;
-   signal  daq_tsof                 : std_logic;
-   signal  daq_teof                 : std_logic;
-   signal  daq_td                   : std_logic_vector(C_DBUS_WIDTH-1 downto 0);
-   signal  daq_tstop                : std_logic;
-
-   -- Fabric side: DLM Rx
-   signal  dlm_tv                   : std_logic;
-   signal  dlm_td                   : std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-
-   -- Fabric side: DLM Tx
-   signal  dlm_rv                   : std_logic;
-   signal  dlm_rd                   : std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-
-   -- Fabric side: CTL Rx
-   signal  ctl_rv                   : std_logic;
-   signal  ctl_rd                   : std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-   signal  ctl_rstop                : std_logic;
-
-   -- Fabric side: CTL Tx
-   signal  ctl_ttake                : std_logic;
-   signal  ctl_tv                   : std_logic;
-   signal  ctl_td                   : std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-   signal  ctl_tstop                : std_logic;
-
-   signal  ctl_reset                : std_logic;
-   signal  ctl_status               : std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-
-   -- Interrupter triggers
-   signal  DAQ_irq                  : std_logic;
-   signal  CTL_irq                  : std_logic;
-   signal  DLM_irq                  : std_logic;
-
-   -- Fabric side: Common signals
-   signal  protocol_link_act        : std_logic_vector(2-1 downto 0);
-   signal  protocol_rst             : std_logic;
-
-
-   -- Pseudo link module, to be replaced by the real optical link
-   COMPONENT pseudo_protocol_module
-   PORT (
-         -- DAQ Tx
-         data2send_start          : IN    std_logic;
-         data2send_end            : IN    std_logic;
-         data2send                : IN    std_logic_vector(64-1 downto 0);
-         crc_error_send           : IN    std_logic;
-         data2send_stop           : OUT   std_logic;
-
-         -- DAQ Rx
-         data_rec_start           : OUT   std_logic;
-         data_rec_end             : OUT   std_logic;
-         data_rec                 : OUT   std_logic_vector(64-1 downto 0);
-         crc_error_rec            : OUT   std_logic;
-         data_rec_stop            : IN    std_logic;
-
-         -- CTL Tx
-         ctrl2send_start          : IN    std_logic;
-         ctrl2send_end            : IN    std_logic;
-         ctrl2send                : IN    std_logic_vector(16-1 downto 0);
-         ctrl2send_stop           : OUT   std_logic;
-
-         -- CTL Rx
-         ctrl_rec_start           : OUT   std_logic;
-         ctrl_rec_end             : OUT   std_logic;
-         ctrl_rec                 : OUT   std_logic_vector(16-1 downto 0);
-         ctrl_rec_stop            : IN    std_logic;
-
-         -- DLM Tx
-         dlm2send_va              : IN    std_logic;
-         dlm2send_type            : IN    std_logic_vector(4-1 downto 0);
-
-         -- DLM Rx
-         dlm_rec_va               : OUT   std_logic;
-         dlm_rec_type             : OUT   std_logic_vector(4-1 downto 0);
-
-         -- dummy pin input
-         dummy_pin_in             : IN    std_logic_vector(3-1 downto 0);
-
-         -- Common interface
-         link_tx_clk              : OUT   std_logic;
-         link_rx_clk              : OUT   std_logic;
-         link_active              : OUT   std_logic_vector(2-1 downto 0);
-         clk                      : IN    std_logic;
-         res_n                    : IN    std_logic
-    );
-   END COMPONENT;
-
-
-   signal  Link_Buf_full             : std_logic;
+--   signal  dg_running         : STD_LOGIC;
+--   signal  dg_mask            : STD_LOGIC;
+--   signal  dg_rst             : STD_LOGIC;
+--
+--   -- debug signal
+--   signal  dg_debug_led       : STD_LOGIC;
+--
+--   -- Protocol Interface module
+--   COMPONENT protocol_IF
+--   PORT (
+--           -- DAQ Tx
+--           data2send_start          : OUT   std_logic;
+--           data2send_end            : OUT   std_logic;
+--           data2send                : OUT   std_logic_vector(64-1 downto 0);
+--           crc_error_send           : OUT   std_logic;
+--           data2send_stop           : IN    std_logic;
+--
+--           -- DAQ Rx
+--           data_rec_start           : IN    std_logic;
+--           data_rec_end             : IN    std_logic;
+--           data_rec                 : IN    std_logic_vector(64-1 downto 0);
+--           crc_error_rec            : IN    std_logic;
+--           data_rec_stop            : OUT   std_logic;
+--
+--           -- CTL Tx
+--           ctrl2send_start          : OUT   std_logic;
+--           ctrl2send_end            : OUT   std_logic;
+--           ctrl2send                : OUT   std_logic_vector(16-1 downto 0);
+--           ctrl2send_stop           : IN    std_logic;
+--
+--           -- CTL Rx
+--           ctrl_rec_start           : IN    std_logic;
+--           ctrl_rec_end             : IN    std_logic;
+--           ctrl_rec                 : IN    std_logic_vector(16-1 downto 0);
+--           ctrl_rec_stop            : OUT   std_logic;
+--
+--           -- DLM Tx
+--           dlm2send_va              : OUT   std_logic;
+--           dlm2send_type            : OUT   std_logic_vector(4-1 downto 0);
+--
+--           -- DLM Rx
+--           dlm_rec_va               : IN    std_logic;
+--           dlm_rec_type             : IN    std_logic_vector(4-1 downto 0);
+--
+--           -- Common signals
+--           link_tx_clk              : IN    std_logic;
+--           link_rx_clk              : IN    std_logic;
+--           link_active              : IN    std_logic_vector(2-1 downto 0);
+--           protocol_clk             : OUT   std_logic;
+--           protocol_res_n           : OUT   std_logic;
+--
+--           -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--
+--           -- Fabric side: DAQ Rx
+--           daq_rv                   : IN    std_logic;
+--           daq_rsof                 : IN    std_logic;
+--           daq_reof                 : IN    std_logic;
+--           daq_rd                   : IN    std_logic_vector(C_DBUS_WIDTH-1 downto 0);
+--           daq_rstop                : OUT   std_logic;
+--
+--           -- Fabric side: DAQ Tx
+--           daq_tv                   : OUT   std_logic;
+--           daq_tsof                 : OUT   std_logic;
+--           daq_teof                 : OUT   std_logic;
+--           daq_td                   : OUT   std_logic_vector(C_DBUS_WIDTH-1 downto 0);
+--           daq_tstop                : IN    std_logic;
+--
+--           -- Fabric side: DLM Rx
+--           dlm_tv                   : IN    std_logic;
+--           dlm_td                   : IN    std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--
+--           -- Fabric side: DLM Tx
+--           dlm_rv                   : OUT   std_logic;
+--           dlm_rd                   : OUT   std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--
+--           -- Fabric side: CTL Rx
+--           ctl_rv                   : IN    std_logic;
+--           ctl_rd                   : IN    std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--           ctl_rstop                : OUT   std_logic;
+--
+--           -- Fabric side: CTL Tx
+--           ctl_ttake                : IN    std_logic;
+--           ctl_tv                   : OUT   std_logic;
+--           ctl_td                   : OUT   std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--           ctl_tstop                : IN    std_logic;
+--
+--           ctl_reset                : IN    std_logic;
+--           ctl_status               : OUT   std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--
+--           -- Interrupter triggers
+--           DAQ_irq                  : OUT   std_logic;
+--           CTL_irq                  : OUT   std_logic;
+--           DLM_irq                  : OUT   std_logic;
+--
+--           -- Data generator table write port
+--           tab_sel                  : IN    STD_LOGIC;
+--           tab_we                   : IN    STD_LOGIC_VECTOR (2-1 downto 0);
+--           tab_wa                   : IN    STD_LOGIC_VECTOR (12-1 downto 0);
+--           tab_wd                   : IN    STD_LOGIC_VECTOR (64-1 downto 0);
+--
+--           -- DG control/status signal
+--           dg_running               : OUT   STD_LOGIC;
+--           dg_mask                  : IN    STD_LOGIC;
+--           dg_rst                   : IN    STD_LOGIC;
+--
+--           -- DG debug signal
+--           daq_start_led            : OUT   STD_LOGIC;
+--
+--           -- Fabric side: Common signals
+--           trn_clk                  : IN    std_logic;
+--           protocol_link_act        : OUT   std_logic_vector(2-1 downto 0);
+--           protocol_rst             : IN    std_logic
+--    );
+--   END COMPONENT;
+--
+--   -- DAQ Tx
+--   signal  data2send_start          : std_logic;
+--   signal  data2send_end            : std_logic;
+--   signal  data2send                : std_logic_vector(64-1 downto 0);
+--   signal  crc_error_send           : std_logic;
+--   signal  data2send_stop           : std_logic
+--                                    := '0';
+--
+--   -- DAQ Rx
+--   signal  data_rec_start           : std_logic;
+--   signal  data_rec_end             : std_logic;
+--   signal  data_rec                 : std_logic_vector(64-1 downto 0);
+--   signal  crc_error_rec            : std_logic;
+--   signal  data_rec_stop            : std_logic;
+--
+--   -- CTL Tx
+--   signal  ctrl2send_start          : std_logic;
+--   signal  ctrl2send_end            : std_logic;
+--   signal  ctrl2send                : std_logic_vector(16-1 downto 0);
+--   signal  ctrl2send_stop           : std_logic;
+--
+--   -- CTL Rx
+--   signal  ctrl_rec_start           : std_logic;
+--   signal  ctrl_rec_end             : std_logic;
+--   signal  ctrl_rec                 : std_logic_vector(16-1 downto 0);
+--   signal  ctrl_rec_stop            : std_logic;
+--
+--   -- DLM Tx
+--   signal  dlm2send_va              : std_logic;
+--   signal  dlm2send_type            : std_logic_vector(4-1 downto 0);
+----   signal  dlm2send_va_i            : std_logic;
+----   signal  dlm2send_type_i          : std_logic_vector(4-1 downto 0);
+--
+--   -- DLM Rx
+--   signal  dlm_rec_va               : std_logic;
+--   signal  dlm_rec_type             : std_logic_vector(4-1 downto 0);
+----   signal  dlm_rec_va_i             : std_logic;
+----   signal  dlm_rec_type_i           : std_logic_vector(4-1 downto 0);
+--
+--
+--   -- Common signals
+--   signal  link_rx_clk              : std_logic;
+--   signal  link_tx_clk              : std_logic;
+--   signal  link_active              : std_logic_vector(2-1 downto 0);
+--   signal  protocol_clk             : std_logic;
+--   signal  protocol_res_n           : std_logic;
+--
+--
+--   -- Fabric side: DAQ Rx
+--   signal  daq_rv                   : std_logic;
+--   signal  daq_rsof                 : std_logic;
+--   signal  daq_reof                 : std_logic;
+--   signal  daq_rd                   : std_logic_vector(C_DBUS_WIDTH-1 downto 0);
+--   signal  daq_rstop                : std_logic;
+--
+--   -- Fabric side: DAQ Tx
+--   signal  daq_tv                   : std_logic;
+--   signal  daq_tsof                 : std_logic;
+--   signal  daq_teof                 : std_logic;
+--   signal  daq_td                   : std_logic_vector(C_DBUS_WIDTH-1 downto 0);
+--   signal  daq_tstop                : std_logic;
+--
+--   -- Fabric side: DLM Rx
+--   signal  dlm_tv                   : std_logic;
+--   signal  dlm_td                   : std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--
+--   -- Fabric side: DLM Tx
+--   signal  dlm_rv                   : std_logic;
+--   signal  dlm_rd                   : std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--
+--   -- Fabric side: CTL Rx
+--   signal  ctl_rv                   : std_logic;
+--   signal  ctl_rd                   : std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--   signal  ctl_rstop                : std_logic;
+--
+--   -- Fabric side: CTL Tx
+--   signal  ctl_ttake                : std_logic;
+--   signal  ctl_tv                   : std_logic;
+--   signal  ctl_td                   : std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--   signal  ctl_tstop                : std_logic;
+--
+--   signal  ctl_reset                : std_logic;
+--   signal  ctl_status               : std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--
+--   -- Interrupter triggers
+--   signal  DAQ_irq                  : std_logic;
+--   signal  CTL_irq                  : std_logic;
+--   signal  DLM_irq                  : std_logic;
+--
+--   -- Fabric side: Common signals
+--   signal  protocol_link_act        : std_logic_vector(2-1 downto 0);
+--   signal  protocol_rst             : std_logic;
+--
+--
+--   -- Pseudo link module, to be replaced by the real optical link
+--   COMPONENT pseudo_protocol_module
+--   PORT (
+--         -- DAQ Tx
+--         data2send_start          : IN    std_logic;
+--         data2send_end            : IN    std_logic;
+--         data2send                : IN    std_logic_vector(64-1 downto 0);
+--         crc_error_send           : IN    std_logic;
+--         data2send_stop           : OUT   std_logic;
+--
+--         -- DAQ Rx
+--         data_rec_start           : OUT   std_logic;
+--         data_rec_end             : OUT   std_logic;
+--         data_rec                 : OUT   std_logic_vector(64-1 downto 0);
+--         crc_error_rec            : OUT   std_logic;
+--         data_rec_stop            : IN    std_logic;
+--
+--         -- CTL Tx
+--         ctrl2send_start          : IN    std_logic;
+--         ctrl2send_end            : IN    std_logic;
+--         ctrl2send                : IN    std_logic_vector(16-1 downto 0);
+--         ctrl2send_stop           : OUT   std_logic;
+--
+--         -- CTL Rx
+--         ctrl_rec_start           : OUT   std_logic;
+--         ctrl_rec_end             : OUT   std_logic;
+--         ctrl_rec                 : OUT   std_logic_vector(16-1 downto 0);
+--         ctrl_rec_stop            : IN    std_logic;
+--
+--         -- DLM Tx
+--         dlm2send_va              : IN    std_logic;
+--         dlm2send_type            : IN    std_logic_vector(4-1 downto 0);
+--
+--         -- DLM Rx
+--         dlm_rec_va               : OUT   std_logic;
+--         dlm_rec_type             : OUT   std_logic_vector(4-1 downto 0);
+--
+--         -- dummy pin input
+--         dummy_pin_in             : IN    std_logic_vector(3-1 downto 0);
+--
+--         -- Common interface
+--         link_tx_clk              : OUT   std_logic;
+--         link_rx_clk              : OUT   std_logic;
+--         link_active              : OUT   std_logic_vector(2-1 downto 0);
+--         clk                      : IN    std_logic;
+--         res_n                    : IN    std_logic
+--    );
+--   END COMPONENT;
+--
+--
+--   signal  Link_Buf_full             : std_logic;
 
 
 ------------- COMPONENT Declaration: tlpControl   ------
@@ -584,37 +584,37 @@ architecture Behavioral of v5pcieDMA is
         mbuf_UserFull                : IN  std_logic;
         trn_Blinker                  : OUT std_logic;
 
-        -- DCB protocol interface
-        protocol_link_act            : IN  std_logic_vector(2-1 downto 0);
-        protocol_rst                 : OUT std_logic;
-
-        -- Interrupter triggers
-        DAQ_irq                      : IN  std_logic;
-        CTL_irq                      : IN  std_logic;
-        DLM_irq                      : IN  std_logic;
-
-        -- Fabric side: CTL Rx
-        ctl_rv                       : OUT std_logic;
-        ctl_rd                       : OUT std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-
-        -- Fabric side: CTL Tx
-        ctl_ttake                    : OUT std_logic;
-        ctl_tv                       : IN  std_logic;
-        ctl_td                       : IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-        ctl_tstop                    : OUT std_logic;
-
-        ctl_reset                    : OUT std_logic;
-        ctl_status                   : IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-
-        -- Fabric side: DLM Rx
-        dlm_tv                       : OUT std_logic;
-        dlm_td                       : OUT std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-
-        -- Fabric side: DLM Tx
-        dlm_rv                       : IN  std_logic;
-        dlm_rd                       : IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-
-        Link_Buf_full                : IN  std_logic;
+--        -- DCB protocol interface
+--        protocol_link_act            : IN  std_logic_vector(2-1 downto 0);
+--        protocol_rst                 : OUT std_logic;
+--
+--        -- Interrupter triggers
+--        DAQ_irq                      : IN  std_logic;
+--        CTL_irq                      : IN  std_logic;
+--        DLM_irq                      : IN  std_logic;
+--
+--        -- Fabric side: CTL Rx
+--        ctl_rv                       : OUT std_logic;
+--        ctl_rd                       : OUT std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--
+--        -- Fabric side: CTL Tx
+--        ctl_ttake                    : OUT std_logic;
+--        ctl_tv                       : IN  std_logic;
+--        ctl_td                       : IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--        ctl_tstop                    : OUT std_logic;
+--
+--        ctl_reset                    : OUT std_logic;
+--        ctl_status                   : IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--
+--        -- Fabric side: DLM Rx
+--        dlm_tv                       : OUT std_logic;
+--        dlm_td                       : OUT std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--
+--        -- Fabric side: DLM Tx
+--        dlm_rv                       : IN  std_logic;
+--        dlm_rd                       : IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--
+--        Link_Buf_full                : IN  std_logic;
 
         -- Event Buffer FIFO interface
         eb_FIFO_we                   : OUT std_logic; 
@@ -674,15 +674,15 @@ architecture Behavioral of v5pcieDMA is
         DDR_FIFO_Empty               : IN  std_logic;
         DDR_FIFO_RdQout              : IN  std_logic_vector(C_DBUS_WIDTH-1 downto 0);
 
-        -- Data generator table write
-        tab_we                       : OUT std_logic_vector(2-1 downto 0);
-        tab_wa                       : OUT std_logic_vector(12-1 downto 0);
-        tab_wd                       : OUT std_logic_vector(C_DBUS_WIDTH-1 downto 0);
-
-        -- Data generator control
-        DG_is_Running                : IN  std_logic;
-        DG_Reset                     : OUT std_logic;
-        DG_Mask                      : OUT std_logic;
+--        -- Data generator table write
+--        tab_we                       : OUT std_logic_vector(2-1 downto 0);
+--        tab_wa                       : OUT std_logic_vector(12-1 downto 0);
+--        tab_wd                       : OUT std_logic_vector(C_DBUS_WIDTH-1 downto 0);
+--
+--        -- Data generator control
+--        DG_is_Running                : IN  std_logic;
+--        DG_Reset                     : OUT std_logic;
+--        DG_Mask                      : OUT std_logic;
 
         -- Transaction layer interface
         trn_lnk_up_n                 : IN  std_logic;
@@ -1049,8 +1049,7 @@ begin
    end generate;
 
 
-
-   DAQ_irq              <= eb_empty;
+--   DAQ_irq              <= eb_empty;
 
 
 -- ---------------------------------------------------------------
@@ -1063,37 +1062,37 @@ begin
            mbuf_UserFull               => '0'                 ,
            trn_Blinker                 => trn_Blinker         ,
 
-           -- DCB protocol interface
-           protocol_link_act   =>  protocol_link_act    ,  -- IN  std_logic_vector(2-1 downto 0);
-           protocol_rst        =>  protocol_rst         ,  -- OUT std_logic;
-
-           Link_Buf_Full       =>  daq_rstop            ,  -- IN  std_logic;
-
-           -- Interrupter triggers
-           DAQ_irq             =>  DAQ_irq              ,  -- IN  std_logic;
-           CTL_irq             =>  CTL_irq              ,  -- IN  std_logic;
-           DLM_irq             =>  DLM_irq              ,  -- IN  std_logic;
-
-           -- Fabric side: CTL Rx
-           ctl_rv              =>  ctl_rv               ,  -- OUT std_logic;
-           ctl_rd              =>  ctl_rd               ,  -- OUT std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-
-           -- Fabric side: CTL Tx
-           ctl_ttake           =>  ctl_ttake            ,  -- OUT std_logic;
-           ctl_tv              =>  ctl_tv               ,  -- IN  std_logic;
-           ctl_td              =>  ctl_td               ,  -- IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-           ctl_tstop           =>  ctl_tstop            ,  -- OUT std_logic;
-
-           ctl_reset           =>  ctl_reset            ,  -- OUT std_logic;
-           ctl_status          =>  ctl_status           ,  -- IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-
-           -- Fabric side: DLM Rx
-           dlm_tv              =>  dlm_tv               ,  -- OUT std_logic;
-           dlm_td              =>  dlm_td               ,  -- OUT std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-
-           -- Fabric side: DLM Tx
-           dlm_rv              =>  dlm_rv               ,  -- IN  std_logic;
-           dlm_rd              =>  dlm_rd               ,  -- IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--           -- DCB protocol interface
+--           protocol_link_act   =>  protocol_link_act    ,  -- IN  std_logic_vector(2-1 downto 0);
+--           protocol_rst        =>  protocol_rst         ,  -- OUT std_logic;
+--
+--           Link_Buf_Full       =>  daq_rstop            ,  -- IN  std_logic;
+--
+--           -- Interrupter triggers
+--           DAQ_irq             =>  DAQ_irq              ,  -- IN  std_logic;
+--           CTL_irq             =>  CTL_irq              ,  -- IN  std_logic;
+--           DLM_irq             =>  DLM_irq              ,  -- IN  std_logic;
+--
+--           -- Fabric side: CTL Rx
+--           ctl_rv              =>  ctl_rv               ,  -- OUT std_logic;
+--           ctl_rd              =>  ctl_rd               ,  -- OUT std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--
+--           -- Fabric side: CTL Tx
+--           ctl_ttake           =>  ctl_ttake            ,  -- OUT std_logic;
+--           ctl_tv              =>  ctl_tv               ,  -- IN  std_logic;
+--           ctl_td              =>  ctl_td               ,  -- IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--           ctl_tstop           =>  ctl_tstop            ,  -- OUT std_logic;
+--
+--           ctl_reset           =>  ctl_reset            ,  -- OUT std_logic;
+--           ctl_status          =>  ctl_status           ,  -- IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--
+--           -- Fabric side: DLM Rx
+--           dlm_tv              =>  dlm_tv               ,  -- OUT std_logic;
+--           dlm_td              =>  dlm_td               ,  -- OUT std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--
+--           -- Fabric side: DLM Tx
+--           dlm_rv              =>  dlm_rv               ,  -- IN  std_logic;
+--           dlm_rd              =>  dlm_rd               ,  -- IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
 
            -- Event Buffer FIFO interface
            eb_FIFO_we                  => eb_we               , --  OUT std_logic; 
@@ -1156,14 +1155,14 @@ begin
            DDR_FIFO_Empty              => DDR_FIFO_Empty      ,  -- IN  std_logic;
            DDR_FIFO_RdQout             => DDR_FIFO_RdQout     ,  -- IN  std_logic_vector(C_DBUS_WIDTH-1 downto 0);
 
-           -- Data generator table write
-           tab_we                      =>  tab_we     ,  -- OUT std_logic_vector(2-1 downto 0);
-           tab_wa                      =>  tab_wa     ,  -- OUT std_logic_vector(12-1 downto 0);
-           tab_wd                      =>  tab_wd     ,  -- OUT std_logic_vector(C_DBUS_WIDTH-1 downto 0);
+--           -- Data generator table write
+--           tab_we                      =>  tab_we     ,  -- OUT std_logic_vector(2-1 downto 0);
+--           tab_wa                      =>  tab_wa     ,  -- OUT std_logic_vector(12-1 downto 0);
+--           tab_wd                      =>  tab_wd     ,  -- OUT std_logic_vector(C_DBUS_WIDTH-1 downto 0);
 
-           DG_is_Running               =>  dg_running ,  -- IN  std_logic;
-           DG_Reset                    =>  dg_rst     ,  -- OUT   STD_LOGIC;
-           DG_Mask                     =>  dg_mask    ,  -- OUT   STD_LOGIC
+--           DG_is_Running               =>  dg_running ,  -- IN  std_logic;
+--           DG_Reset                    =>  dg_rst     ,  -- OUT   STD_LOGIC;
+--           DG_Mask                     =>  dg_mask    ,  -- OUT   STD_LOGIC
 
            -------------------
            -- Transaction Interface
@@ -1263,18 +1262,18 @@ begin
     -- Event Buffer wrapper
     -- 
 
-    LEDs_IO_pin(0)    <= trn_reset_n xor Format_Shower;
-    LEDs_IO_pin(1)    <= trn_lnk_up_n xor DDR_Blinker;
-    LEDs_IO_pin(2)    <= link_active(0);
-    LEDs_IO_pin(3)    <= link_active(1);   -- dg_debug_led;
+    LEDs_IO_pin(0)    <= trn_reset_n;
+    LEDs_IO_pin(1)    <= trn_lnk_up_n;
+    LEDs_IO_pin(2)    <= Format_Shower;
+    LEDs_IO_pin(3)    <= DDR_Blinker;
 
 
-    event_buffer0:
-    eb_wrapper
+    queue_buffer:
+    FIFO_wrapper
       port map (
          wr_clk     => trn_clk   ,  -- eb_wclk   ,
-         wr_en      => eb_we_up     ,
-         din        => eb_din_up    ,
+         wr_en      => eb_we     ,
+         din        => eb_din    ,
          pfull      => eb_pfull  ,
          full       => eb_full   ,
 
@@ -1304,185 +1303,185 @@ begin
     eb_FIFO_Status(2)    <= eb_full;      -- daq_rstop;
     eb_FIFO_Status(1)    <= eb_pfull;
     eb_FIFO_Status(0)    <= eb_empty;
-    eb_FIFO_ow           <= eb_we_up and eb_full;
+    eb_FIFO_ow           <= eb_we and eb_full;
 
 
-    -- 
-    --   .......................
-    -- 
-    
-    daq_rv              <=  eb_we;
-    daq_rsof            <=  eb_wsof;
-    daq_reof            <=  eb_weof;
-    daq_rd              <=  eb_din(C_DBUS_WIDTH-1 downto 0);
-
-    eb_we_up            <=  daq_tv or self_feed_daq;
-    eb_din_up           <=  C_ALL_ZEROS(72-1 downto C_DBUS_WIDTH+2) & daq_tsof & daq_teof & daq_td;
-    daq_tstop           <=  eb_pfull;
-
-
-    -- 
-    --     Protocol Interface
-    -- 
-    ABB_DCB_Interface0:
-    protocol_IF
-      port map (
-           -- DAQ Tx
-           data2send_start          => data2send_start      ,   -- OUT   std_logic;
-           data2send_end            => data2send_end        ,   -- OUT   std_logic;
-           data2send                => data2send            ,   -- OUT   std_logic_vector(16-1 downto 0);
-           crc_error_send           => crc_error_send       ,   -- OUT   std_logic;
-           data2send_stop           => data2send_stop       ,   -- IN    std_logic;
-
-           -- DAQ Rx
-           data_rec_start           => data_rec_start       ,   -- IN    std_logic;
-           data_rec_end             => data_rec_end         ,   -- IN    std_logic;
-           data_rec                 => data_rec             ,   -- IN    std_logic_vector(16-1 downto 0);
-           crc_error_rec            => crc_error_rec        ,   -- IN    std_logic;
-           data_rec_stop            => data_rec_stop        ,   -- OUT   std_logic;
-
-           -- CTL Tx
-           ctrl2send_start          => ctrl2send_start      ,   -- OUT   std_logic;
-           ctrl2send_end            => ctrl2send_end        ,   -- OUT   std_logic;
-           ctrl2send                => ctrl2send            ,   -- OUT   std_logic_vector(16-1 downto 0);
-           ctrl2send_stop           => ctrl2send_stop       ,   -- IN    std_logic;
-
-           -- CTL Rx
-           ctrl_rec_start           => ctrl_rec_start       ,   -- IN    std_logic;
-           ctrl_rec_end             => ctrl_rec_end         ,   -- IN    std_logic;
-           ctrl_rec                 => ctrl_rec             ,   -- IN    std_logic_vector(16-1 downto 0);
-           ctrl_rec_stop            => ctrl_rec_stop        ,   -- OUT   std_logic;
-
-           -- DLM Tx
-           dlm2send_va              => dlm2send_va          ,   -- OUT   std_logic;
-           dlm2send_type            => dlm2send_type        ,   -- OUT   std_logic_vector(4-1 downto 0);
-
-           -- DLM Rx
-           dlm_rec_va               => dlm_rec_va           ,   -- IN    std_logic;
-           dlm_rec_type             => dlm_rec_type         ,   -- IN    std_logic_vector(4-1 downto 0);
-
-           -- Common signals
-           link_tx_clk              => link_tx_clk          ,   -- IN    std_logic;
-           link_rx_clk              => link_rx_clk          ,   -- IN    std_logic;
-           link_active              => link_active          ,   -- IN    std_logic_vector(2-1 downto 0);
-           protocol_clk             => protocol_clk         ,   -- OUT   std_logic;
-           protocol_res_n           => protocol_res_n       ,   -- OUT   std_logic;
-
-
-           -- Fabric side: DAQ Rx
-           daq_rv                   => daq_rv               ,   -- IN    std_logic;
-           daq_rsof                 => daq_rsof             ,   -- IN    std_logic;
-           daq_reof                 => daq_reof             ,   -- IN    std_logic;
-           daq_rd                   => daq_rd               ,   -- IN    std_logic_vector(64-1 downto 0);
-           daq_rstop                => daq_rstop            ,   -- OUT   std_logic;
-
-           -- Fabric side: DAQ Tx
-           daq_tv                   => daq_tv               ,   -- OUT   std_logic;
-           daq_tsof                 => daq_tsof             ,   -- OUT   std_logic;
-           daq_teof                 => daq_teof             ,   -- OUT   std_logic;
-           daq_td                   => daq_td               ,   -- OUT   std_logic_vector(64-1 downto 0);
-           daq_tstop                => daq_tstop            ,   -- IN    std_logic;
-
-           -- Fabric side: CTL Rx
-           ctl_rv                   => ctl_rv               ,   -- IN    std_logic;
-           ctl_rd                   => ctl_rd               ,   -- IN    std_logic_vector(32-1 downto 0);
-           ctl_rstop                => ctl_rstop            ,   -- OUT   std_logic;
-
-           -- Fabric side: CTL Tx
-           ctl_ttake                => ctl_ttake            ,   -- IN    std_logic;
-           ctl_tv                   => ctl_tv               ,   -- OUT   std_logic;
-           ctl_td                   => ctl_td               ,   -- OUT   std_logic_vector(32-1 downto 0);
-           ctl_tstop                => ctl_tstop            ,   -- IN    std_logic;
-
-           ctl_reset                => ctl_reset            ,   -- IN    std_logic;
-           ctl_status               => ctl_status           ,   -- OUT   std_logic_vector(32-1 downto 0);
-
-           -- Fabric side: DLM Rx
-           dlm_tv                   => dlm_tv               ,   -- IN    std_logic;
-           dlm_td                   => dlm_td               ,   -- IN    std_logic_vector(4-1 downto 0);
-
-           -- Fabric side: DLM Tx
-           dlm_rv                   => dlm_rv               ,   -- OUT   std_logic;
-           dlm_rd                   => dlm_rd               ,   -- OUT   std_logic_vector(4-1 downto 0);
-
-           -- Interrupter triggers
-           DAQ_irq                  => open,  -- DAQ_irq              ,   -- OUT   std_logic;
-           CTL_irq                  => CTL_irq              ,   -- OUT   std_logic;
-           DLM_irq                  => DLM_irq              ,   -- OUT   std_logic;
-
-           -- Data generator table write port
-           tab_sel                  => '1'                  , -- IN    STD_LOGIC;
-           tab_we                   => tab_we               , -- IN    STD_LOGIC_VECTOR (2-1 downto 0);
-           tab_wa                   => tab_wa               , -- IN    STD_LOGIC_VECTOR (12-1 downto 0);
-           tab_wd                   => tab_wd               , -- IN    STD_LOGIC_VECTOR (64-1 downto 0);
-
-           -- DG control/status signal
-           dg_running               => dg_running           , -- OUT   STD_LOGIC;
-           dg_mask                  => dg_mask              , -- IN    STD_LOGIC;
-           dg_rst                   => dg_rst               , -- IN    STD_LOGIC
-
-           -- DG debug signal
-           daq_start_led            => dg_debug_led         , -- OUT   STD_LOGIC;
-
-           -- Fabric side: Common signals
-           trn_clk                  => trn_clk              ,   -- IN    std_logic;
-           protocol_link_act        => protocol_link_act    ,   -- OUT   std_logic_vector(2-1 downto 0);
-           protocol_rst             => protocol_rst             -- IN    std_logic
-      );
-
-
-    -- 
-    --     Module emulating the link
-    -- 
-
-    DCB_Link_module0:
-    pseudo_protocol_module
-      port map (
-           -- DAQ Tx
-           data2send_start          => data2send_start       ,   -- IN    std_logic;
-           data2send_end            => data2send_end         ,   -- IN    std_logic;
-           data2send                => data2send             ,   -- IN    std_logic_vector(16-1 downto 0);
-           crc_error_send           => crc_error_send        ,   -- IN    std_logic;
-           data2send_stop           => data2send_stop        ,   -- OUT   std_logic;
-
-           -- DAQ Rx
-           data_rec_start           => data_rec_start        ,   -- OUT   std_logic;
-           data_rec_end             => data_rec_end          ,   -- OUT   std_logic;
-           data_rec                 => data_rec              ,   -- OUT   std_logic_vector(16-1 downto 0);
-           crc_error_rec            => crc_error_rec         ,   -- OUT   std_logic;
-           data_rec_stop            => data_rec_stop         ,   -- IN    std_logic;
-
-           -- CTL Tx
-           ctrl2send_start          => ctrl2send_start       ,   -- IN    std_logic;
-           ctrl2send_end            => ctrl2send_end         ,   -- IN    std_logic;
-           ctrl2send                => ctrl2send             ,   -- IN    std_logic_vector(16-1 downto 0);
-           ctrl2send_stop           => ctrl2send_stop        ,   -- OUT   std_logic;
-
-           -- CTL Rx
-           ctrl_rec_start           => ctrl_rec_start        ,   -- OUT   std_logic;
-           ctrl_rec_end             => ctrl_rec_end          ,   -- OUT   std_logic;
-           ctrl_rec                 => ctrl_rec              ,   -- OUT   std_logic_vector(16-1 downto 0);
-           ctrl_rec_stop            => ctrl_rec_stop         ,   -- IN    std_logic;
-
-           -- DLM Tx
-           dlm2send_va              => dlm2send_va           ,   -- IN    std_logic;
-           dlm2send_type            => dlm2send_type         ,   -- IN    std_logic_vector(4-1 downto 0);
-
-           -- DLM Rx
-           dlm_rec_va               => dlm_rec_va            ,   -- OUT   std_logic;
-           dlm_rec_type             => dlm_rec_type          ,   -- OUT   std_logic_vector(4-1 downto 0);
-
-           -- dummy pin input  !!!! not really exists
-           dummy_pin_in             => "000",  -- dummy_pin_in          ,   -- IN    std_logic_vector(3-1 downto 0);
---           dummy_pin_in             => dummy_pin_in          ,   -- IN    std_logic_vector(3-1 downto 0);
-
-           -- Common interface
-           link_tx_clk              => link_tx_clk           ,   -- OUT   std_logic;
-           link_rx_clk              => link_rx_clk           ,   -- OUT   std_logic;
-           link_active              => link_active           ,   -- OUT   std_logic_vector(2-1 downto 0);
-           clk                      => protocol_clk          ,   -- IN    std_logic;
-           res_n                    => protocol_res_n            -- IN    std_logic
-      );
+--    -- 
+--    --   .......................
+--    -- 
+--
+--    daq_rv              <=  eb_we;
+--    daq_rsof            <=  eb_wsof;
+--    daq_reof            <=  eb_weof;
+--    daq_rd              <=  eb_din(C_DBUS_WIDTH-1 downto 0);
+--
+--    eb_we_up            <=  daq_tv or self_feed_daq;
+--    eb_din_up           <=  C_ALL_ZEROS(72-1 downto C_DBUS_WIDTH+2) & daq_tsof & daq_teof & daq_td;
+--    daq_tstop           <=  eb_pfull;
+--
+--
+--    -- 
+--    --     Protocol Interface
+--    -- 
+--    ABB_DCB_Interface0:
+--    protocol_IF
+--      port map (
+--           -- DAQ Tx
+--           data2send_start          => data2send_start      ,   -- OUT   std_logic;
+--           data2send_end            => data2send_end        ,   -- OUT   std_logic;
+--           data2send                => data2send            ,   -- OUT   std_logic_vector(16-1 downto 0);
+--           crc_error_send           => crc_error_send       ,   -- OUT   std_logic;
+--           data2send_stop           => data2send_stop       ,   -- IN    std_logic;
+--
+--           -- DAQ Rx
+--           data_rec_start           => data_rec_start       ,   -- IN    std_logic;
+--           data_rec_end             => data_rec_end         ,   -- IN    std_logic;
+--           data_rec                 => data_rec             ,   -- IN    std_logic_vector(16-1 downto 0);
+--           crc_error_rec            => crc_error_rec        ,   -- IN    std_logic;
+--           data_rec_stop            => data_rec_stop        ,   -- OUT   std_logic;
+--
+--           -- CTL Tx
+--           ctrl2send_start          => ctrl2send_start      ,   -- OUT   std_logic;
+--           ctrl2send_end            => ctrl2send_end        ,   -- OUT   std_logic;
+--           ctrl2send                => ctrl2send            ,   -- OUT   std_logic_vector(16-1 downto 0);
+--           ctrl2send_stop           => ctrl2send_stop       ,   -- IN    std_logic;
+--
+--           -- CTL Rx
+--           ctrl_rec_start           => ctrl_rec_start       ,   -- IN    std_logic;
+--           ctrl_rec_end             => ctrl_rec_end         ,   -- IN    std_logic;
+--           ctrl_rec                 => ctrl_rec             ,   -- IN    std_logic_vector(16-1 downto 0);
+--           ctrl_rec_stop            => ctrl_rec_stop        ,   -- OUT   std_logic;
+--
+--           -- DLM Tx
+--           dlm2send_va              => dlm2send_va          ,   -- OUT   std_logic;
+--           dlm2send_type            => dlm2send_type        ,   -- OUT   std_logic_vector(4-1 downto 0);
+--
+--           -- DLM Rx
+--           dlm_rec_va               => dlm_rec_va           ,   -- IN    std_logic;
+--           dlm_rec_type             => dlm_rec_type         ,   -- IN    std_logic_vector(4-1 downto 0);
+--
+--           -- Common signals
+--           link_tx_clk              => link_tx_clk          ,   -- IN    std_logic;
+--           link_rx_clk              => link_rx_clk          ,   -- IN    std_logic;
+--           link_active              => link_active          ,   -- IN    std_logic_vector(2-1 downto 0);
+--           protocol_clk             => protocol_clk         ,   -- OUT   std_logic;
+--           protocol_res_n           => protocol_res_n       ,   -- OUT   std_logic;
+--
+--
+--           -- Fabric side: DAQ Rx
+--           daq_rv                   => daq_rv               ,   -- IN    std_logic;
+--           daq_rsof                 => daq_rsof             ,   -- IN    std_logic;
+--           daq_reof                 => daq_reof             ,   -- IN    std_logic;
+--           daq_rd                   => daq_rd               ,   -- IN    std_logic_vector(64-1 downto 0);
+--           daq_rstop                => daq_rstop            ,   -- OUT   std_logic;
+--
+--           -- Fabric side: DAQ Tx
+--           daq_tv                   => daq_tv               ,   -- OUT   std_logic;
+--           daq_tsof                 => daq_tsof             ,   -- OUT   std_logic;
+--           daq_teof                 => daq_teof             ,   -- OUT   std_logic;
+--           daq_td                   => daq_td               ,   -- OUT   std_logic_vector(64-1 downto 0);
+--           daq_tstop                => daq_tstop            ,   -- IN    std_logic;
+--
+--           -- Fabric side: CTL Rx
+--           ctl_rv                   => ctl_rv               ,   -- IN    std_logic;
+--           ctl_rd                   => ctl_rd               ,   -- IN    std_logic_vector(32-1 downto 0);
+--           ctl_rstop                => ctl_rstop            ,   -- OUT   std_logic;
+--
+--           -- Fabric side: CTL Tx
+--           ctl_ttake                => ctl_ttake            ,   -- IN    std_logic;
+--           ctl_tv                   => ctl_tv               ,   -- OUT   std_logic;
+--           ctl_td                   => ctl_td               ,   -- OUT   std_logic_vector(32-1 downto 0);
+--           ctl_tstop                => ctl_tstop            ,   -- IN    std_logic;
+--
+--           ctl_reset                => ctl_reset            ,   -- IN    std_logic;
+--           ctl_status               => ctl_status           ,   -- OUT   std_logic_vector(32-1 downto 0);
+--
+--           -- Fabric side: DLM Rx
+--           dlm_tv                   => dlm_tv               ,   -- IN    std_logic;
+--           dlm_td                   => dlm_td               ,   -- IN    std_logic_vector(4-1 downto 0);
+--
+--           -- Fabric side: DLM Tx
+--           dlm_rv                   => dlm_rv               ,   -- OUT   std_logic;
+--           dlm_rd                   => dlm_rd               ,   -- OUT   std_logic_vector(4-1 downto 0);
+--
+--           -- Interrupter triggers
+--           DAQ_irq                  => open,  -- DAQ_irq              ,   -- OUT   std_logic;
+--           CTL_irq                  => CTL_irq              ,   -- OUT   std_logic;
+--           DLM_irq                  => DLM_irq              ,   -- OUT   std_logic;
+--
+--           -- Data generator table write port
+--           tab_sel                  => '1'                  , -- IN    STD_LOGIC;
+--           tab_we                   => tab_we               , -- IN    STD_LOGIC_VECTOR (2-1 downto 0);
+--           tab_wa                   => tab_wa               , -- IN    STD_LOGIC_VECTOR (12-1 downto 0);
+--           tab_wd                   => tab_wd               , -- IN    STD_LOGIC_VECTOR (64-1 downto 0);
+--
+--           -- DG control/status signal
+--           dg_running               => dg_running           , -- OUT   STD_LOGIC;
+--           dg_mask                  => dg_mask              , -- IN    STD_LOGIC;
+--           dg_rst                   => dg_rst               , -- IN    STD_LOGIC
+--
+--           -- DG debug signal
+--           daq_start_led            => dg_debug_led         , -- OUT   STD_LOGIC;
+--
+--           -- Fabric side: Common signals
+--           trn_clk                  => trn_clk              ,   -- IN    std_logic;
+--           protocol_link_act        => protocol_link_act    ,   -- OUT   std_logic_vector(2-1 downto 0);
+--           protocol_rst             => protocol_rst             -- IN    std_logic
+--      );
+--
+--
+--    -- 
+--    --     Module emulating the link
+--    -- 
+--
+--    DCB_Link_module0:
+--    pseudo_protocol_module
+--      port map (
+--           -- DAQ Tx
+--           data2send_start          => data2send_start       ,   -- IN    std_logic;
+--           data2send_end            => data2send_end         ,   -- IN    std_logic;
+--           data2send                => data2send             ,   -- IN    std_logic_vector(16-1 downto 0);
+--           crc_error_send           => crc_error_send        ,   -- IN    std_logic;
+--           data2send_stop           => data2send_stop        ,   -- OUT   std_logic;
+--
+--           -- DAQ Rx
+--           data_rec_start           => data_rec_start        ,   -- OUT   std_logic;
+--           data_rec_end             => data_rec_end          ,   -- OUT   std_logic;
+--           data_rec                 => data_rec              ,   -- OUT   std_logic_vector(16-1 downto 0);
+--           crc_error_rec            => crc_error_rec         ,   -- OUT   std_logic;
+--           data_rec_stop            => data_rec_stop         ,   -- IN    std_logic;
+--
+--           -- CTL Tx
+--           ctrl2send_start          => ctrl2send_start       ,   -- IN    std_logic;
+--           ctrl2send_end            => ctrl2send_end         ,   -- IN    std_logic;
+--           ctrl2send                => ctrl2send             ,   -- IN    std_logic_vector(16-1 downto 0);
+--           ctrl2send_stop           => ctrl2send_stop        ,   -- OUT   std_logic;
+--
+--           -- CTL Rx
+--           ctrl_rec_start           => ctrl_rec_start        ,   -- OUT   std_logic;
+--           ctrl_rec_end             => ctrl_rec_end          ,   -- OUT   std_logic;
+--           ctrl_rec                 => ctrl_rec              ,   -- OUT   std_logic_vector(16-1 downto 0);
+--           ctrl_rec_stop            => ctrl_rec_stop         ,   -- IN    std_logic;
+--
+--           -- DLM Tx
+--           dlm2send_va              => dlm2send_va           ,   -- IN    std_logic;
+--           dlm2send_type            => dlm2send_type         ,   -- IN    std_logic_vector(4-1 downto 0);
+--
+--           -- DLM Rx
+--           dlm_rec_va               => dlm_rec_va            ,   -- OUT   std_logic;
+--           dlm_rec_type             => dlm_rec_type          ,   -- OUT   std_logic_vector(4-1 downto 0);
+--
+--           -- dummy pin input  !!!! not really exists
+--           dummy_pin_in             => "000",  -- dummy_pin_in          ,   -- IN    std_logic_vector(3-1 downto 0);
+----           dummy_pin_in             => dummy_pin_in          ,   -- IN    std_logic_vector(3-1 downto 0);
+--
+--           -- Common interface
+--           link_tx_clk              => link_tx_clk           ,   -- OUT   std_logic;
+--           link_rx_clk              => link_rx_clk           ,   -- OUT   std_logic;
+--           link_active              => link_active           ,   -- OUT   std_logic_vector(2-1 downto 0);
+--           clk                      => protocol_clk          ,   -- IN    std_logic;
+--           res_n                    => protocol_res_n            -- IN    std_logic
+--      );
 
 
 

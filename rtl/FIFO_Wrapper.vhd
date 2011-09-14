@@ -4,7 +4,7 @@
 -- 
 -- Create Date:    16:37:22 12 Feb 2009
 -- Design Name: 
--- Module Name:    eb_wrapper - Behavioral 
+-- Module Name:    FIFO_wrapper - Behavioral 
 -- Project Name: 
 -- Target Devices: 
 -- Tool versions: 
@@ -30,7 +30,7 @@ use work.abb64Package.all;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity eb_wrapper is
+entity FIFO_wrapper is
     Generic (
              C_ASYNFIFO_WIDTH  :  integer  :=  72
             );
@@ -50,10 +50,10 @@ entity eb_wrapper is
           data_count  : OUT std_logic_VECTOR(C_EMU_FIFO_DC_WIDTH-1 downto 0);
           rst         : IN  std_logic
           );
-end entity eb_wrapper;
+end entity FIFO_wrapper;
 
 
-architecture Behavioral of eb_wrapper is
+architecture Behavioral of FIFO_wrapper is
 
   ---  16384 x 72
   component eb_fifo

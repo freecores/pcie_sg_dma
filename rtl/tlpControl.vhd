@@ -39,35 +39,35 @@ entity tlpControl is
       mbuf_UserFull            : IN   std_logic;
       trn_Blinker              : OUT  std_logic;
 
-      -- DCB protocol interface
-      protocol_link_act        : IN  std_logic_vector(2-1 downto 0);
-      protocol_rst             : OUT std_logic;
-
-      -- Interrupter triggers
-      DAQ_irq                  : IN  std_logic;
-      CTL_irq                  : IN  std_logic;
-      DLM_irq                  : IN  std_logic;
-
-      -- Fabric side: CTL Rx
-      ctl_rv                   : OUT std_logic;
-      ctl_rd                   : OUT std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-
-      -- Fabric side: CTL Tx
-      ctl_ttake                : OUT std_logic;
-      ctl_tv                   : IN  std_logic;
-      ctl_td                   : IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-      ctl_tstop                : OUT std_logic;
-
-      ctl_reset                : OUT std_logic;
-      ctl_status               : IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-
-      -- Fabric side: DLM Rx
-      dlm_tv                   : OUT std_logic;
-      dlm_td                   : OUT std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-
-      -- Fabric side: DLM Tx
-      dlm_rv                   : IN  std_logic;
-      dlm_rd                   : IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--      -- DCB protocol interface
+--      protocol_link_act        : IN  std_logic_vector(2-1 downto 0);
+--      protocol_rst             : OUT std_logic;
+--
+--      -- Interrupter triggers
+--      DAQ_irq                  : IN  std_logic;
+--      CTL_irq                  : IN  std_logic;
+--      DLM_irq                  : IN  std_logic;
+--
+--      -- Fabric side: CTL Rx
+--      ctl_rv                   : OUT std_logic;
+--      ctl_rd                   : OUT std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--
+--      -- Fabric side: CTL Tx
+--      ctl_ttake                : OUT std_logic;
+--      ctl_tv                   : IN  std_logic;
+--      ctl_td                   : IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--      ctl_tstop                : OUT std_logic;
+--
+--      ctl_reset                : OUT std_logic;
+--      ctl_status               : IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--
+--      -- Fabric side: DLM Rx
+--      dlm_tv                   : OUT std_logic;
+--      dlm_td                   : OUT std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--
+--      -- Fabric side: DLM Tx
+--      dlm_rv                   : IN  std_logic;
+--      dlm_rd                   : IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
 
       -- Event Buffer FIFO interface
       eb_FIFO_we               : OUT std_logic;
@@ -128,14 +128,14 @@ entity tlpControl is
       DDR_FIFO_Empty           : IN  std_logic;
       DDR_FIFO_RdQout          : IN  std_logic_vector(C_DBUS_WIDTH-1 downto 0);
 
-      -- Data generator table write
-      tab_we                   : OUT std_logic_vector(2-1 downto 0);
-      tab_wa                   : OUT std_logic_vector(12-1 downto 0);
-      tab_wd                   : OUT std_logic_vector(C_DBUS_WIDTH-1 downto 0);
-
-      DG_is_Running            : IN  std_logic;
-      DG_Reset                 : OUT std_logic;
-      DG_Mask                  : OUT std_logic;
+--      -- Data generator table write
+--      tab_we                   : OUT std_logic_vector(2-1 downto 0);
+--      tab_wa                   : OUT std_logic_vector(12-1 downto 0);
+--      tab_wd                   : OUT std_logic_vector(C_DBUS_WIDTH-1 downto 0);
+--
+--      DG_is_Running            : IN  std_logic;
+--      DG_Reset                 : OUT std_logic;
+--      DG_Mask                  : OUT std_logic;
 
       -- Common interface
       trn_clk                  : IN  std_logic;
@@ -371,10 +371,10 @@ architecture Behavioral of tlpControl is
 
       Link_Buf_full      : IN  std_logic;
 
-      -- Data generator table write
-      tab_we             : OUT std_logic_vector(2-1 downto 0);
-      tab_wa             : OUT std_logic_vector(12-1 downto 0);
-      tab_wd             : OUT std_logic_vector(C_DBUS_WIDTH-1 downto 0);
+--      -- Data generator table write
+--      tab_we             : OUT std_logic_vector(2-1 downto 0);
+--      tab_wa             : OUT std_logic_vector(12-1 downto 0);
+--      tab_wd             : OUT std_logic_vector(C_DBUS_WIDTH-1 downto 0);
 
       -- Interrupt generator signals
       IG_Reset           : IN  std_logic;
@@ -501,30 +501,30 @@ architecture Behavioral of tlpControl is
   component Regs_Group
     port (
 
-      -- DCB protocol interface
-		protocol_link_act        : IN  std_logic_vector(2-1 downto 0);
-		protocol_rst             : OUT std_logic;
-
-      -- Fabric side: CTL Rx
-      ctl_rv                   : OUT std_logic;
-      ctl_rd                   : OUT std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-
-      -- Fabric side: CTL Tx
-      ctl_ttake                : OUT std_logic;
-      ctl_tv                   : IN  std_logic;
-      ctl_td                   : IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-      ctl_tstop                : OUT std_logic;
-
-      ctl_reset                : OUT std_logic;
-      ctl_status               : IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-
-      -- Fabric side: DLM Rx
-      dlm_tv                   : OUT std_logic;
-      dlm_td                   : OUT std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-
-      -- Fabric side: DLM Tx
-      dlm_rv                   : IN  std_logic;
-      dlm_rd                   : IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--      -- DCB protocol interface
+--		protocol_link_act        : IN  std_logic_vector(2-1 downto 0);
+--		protocol_rst             : OUT std_logic;
+--
+--      -- Fabric side: CTL Rx
+--      ctl_rv                   : OUT std_logic;
+--      ctl_rd                   : OUT std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--
+--      -- Fabric side: CTL Tx
+--      ctl_ttake                : OUT std_logic;
+--      ctl_tv                   : IN  std_logic;
+--      ctl_td                   : IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--      ctl_tstop                : OUT std_logic;
+--
+--      ctl_reset                : OUT std_logic;
+--      ctl_status               : IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--
+--      -- Fabric side: DLM Rx
+--      dlm_tv                   : OUT std_logic;
+--      dlm_td                   : OUT std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--
+--      -- Fabric side: DLM Tx
+--      dlm_rv                   : IN  std_logic;
+--      dlm_rd                   : IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
 
       -- Event Buffer status
       eb_FIFO_Status           : IN  std_logic_vector(C_DBUS_WIDTH-1 downto 0);
@@ -616,9 +616,9 @@ architecture Behavioral of tlpControl is
 
       -- to Interrupt module
       Sys_IRQ                  : OUT std_logic_vector(C_DBUS_WIDTH-1 downto 0);
-      DAQ_irq                  : IN  std_logic;
-      CTL_irq                  : IN  std_logic;
-      DLM_irq                  : IN  std_logic;
+--      DAQ_irq                  : IN  std_logic;
+--      CTL_irq                  : IN  std_logic;
+--      DLM_irq                  : IN  std_logic;
 
       -- System error and info
       eb_FIFO_ow               : IN  std_logic;
@@ -636,10 +636,10 @@ architecture Behavioral of tlpControl is
       IG_Num_Deassert          : IN  std_logic_vector(C_DBUS_WIDTH-1   downto 0);
       IG_Asserting             : IN  std_logic;
 
-      -- Data generator control
-      DG_is_Running            : IN  std_logic;
-      DG_Reset                 : OUT std_logic;
-      DG_Mask                  : OUT std_logic;
+--      -- Data generator control
+--      DG_is_Running            : IN  std_logic;
+--      DG_Reset                 : OUT std_logic;
+--      DG_Mask                  : OUT std_logic;
 
       -- Common interface
       trn_clk                  : IN  std_logic;
@@ -1162,10 +1162,10 @@ begin
       Link_Buf_full       =>  Link_Buf_full   , -- IN    std_logic;
 
 
-      -- Data generator table write
-      tab_we              =>  tab_we          , -- OUT std_logic_vector(2-1 downto 0);
-      tab_wa              =>  tab_wa          , -- OUT std_logic_vector(12-1 downto 0);
-      tab_wd              =>  tab_wd          , -- OUT std_logic_vector(C_DBUS_WIDTH-1 downto 0);
+--      -- Data generator table write
+--      tab_we              =>  tab_we          , -- OUT std_logic_vector(2-1 downto 0);
+--      tab_wa              =>  tab_wa          , -- OUT std_logic_vector(12-1 downto 0);
+--      tab_wd              =>  tab_wd          , -- OUT std_logic_vector(C_DBUS_WIDTH-1 downto 0);
 
       -- Additional
       cfg_dcommand        =>  cfg_dcommand         ,  -- IN  std_logic_vector(15 downto 0)
@@ -1273,30 +1273,30 @@ begin
    Regs_Group
    PORT MAP(
 
-      -- DCB protocol interface
-      protocol_link_act   =>  protocol_link_act    ,  -- IN  std_logic_vector(2-1 downto 0);
-      protocol_rst        =>  protocol_rst         ,  -- OUT std_logic;
-
-      -- Fabric side: CTL Rx
-      ctl_rv              =>  ctl_rv               ,  -- OUT std_logic;
-      ctl_rd              =>  ctl_rd               ,  -- OUT std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-
-      -- Fabric side: CTL Tx
-      ctl_ttake           =>  ctl_ttake            ,  -- OUT std_logic;
-      ctl_tv              =>  ctl_tv               ,  -- IN  std_logic;
-      ctl_td              =>  ctl_td               ,  -- IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-      ctl_tstop           =>  ctl_tstop            ,  -- OUT std_logic;
-
-      ctl_reset           =>  ctl_reset            ,  -- OUT std_logic;
-      ctl_status          =>  ctl_status           ,  -- IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-
-      -- Fabric side: DLM Rx
-      dlm_tv              =>  dlm_tv               ,  -- OUT std_logic;
-      dlm_td              =>  dlm_td               ,  -- OUT std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
-
-      -- Fabric side: DLM Tx
-      dlm_rv              =>  dlm_rv               ,  -- IN  std_logic;
-      dlm_rd              =>  dlm_rd               ,  -- IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--      -- DCB protocol interface
+--      protocol_link_act   =>  protocol_link_act    ,  -- IN  std_logic_vector(2-1 downto 0);
+--      protocol_rst        =>  protocol_rst         ,  -- OUT std_logic;
+--
+--      -- Fabric side: CTL Rx
+--      ctl_rv              =>  ctl_rv               ,  -- OUT std_logic;
+--      ctl_rd              =>  ctl_rd               ,  -- OUT std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--
+--      -- Fabric side: CTL Tx
+--      ctl_ttake           =>  ctl_ttake            ,  -- OUT std_logic;
+--      ctl_tv              =>  ctl_tv               ,  -- IN  std_logic;
+--      ctl_td              =>  ctl_td               ,  -- IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--      ctl_tstop           =>  ctl_tstop            ,  -- OUT std_logic;
+--
+--      ctl_reset           =>  ctl_reset            ,  -- OUT std_logic;
+--      ctl_status          =>  ctl_status           ,  -- IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--
+--      -- Fabric side: DLM Rx
+--      dlm_tv              =>  dlm_tv               ,  -- OUT std_logic;
+--      dlm_td              =>  dlm_td               ,  -- OUT std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
+--
+--      -- Fabric side: DLM Tx
+--      dlm_rv              =>  dlm_rv               ,  -- IN  std_logic;
+--      dlm_rd              =>  dlm_rd               ,  -- IN  std_logic_vector(C_DBUS_WIDTH/2-1 downto 0);
 
       -- Event Buffer status + reset
       eb_FIFO_Status      =>  eb_FIFO_Status  ,      -- IN  std_logic_vector(C_DBUS_WIDTH-1 downto 0);
@@ -1382,9 +1382,9 @@ begin
 
       -- to Interrupt module
       Sys_IRQ             =>  Sys_IRQ              ,  -- OUT std_logic_vector(31 downto 0);
-      DAQ_irq             =>  DAQ_irq              ,  -- IN  std_logic;
-      CTL_irq             =>  CTL_irq              ,  -- IN  std_logic;
-      DLM_irq             =>  DLM_irq              ,  -- IN  std_logic;
+--      DAQ_irq             =>  DAQ_irq              ,  -- IN  std_logic;
+--      CTL_irq             =>  CTL_irq              ,  -- IN  std_logic;
+--      DLM_irq             =>  DLM_irq              ,  -- IN  std_logic;
 
       -- System error and info
       eb_FIFO_ow          =>  eb_FIFO_ow           ,
@@ -1402,10 +1402,10 @@ begin
       IG_Num_Deassert     =>  IG_Num_Deassert      ,
       IG_Asserting        =>  IG_Asserting         ,
 
-      -- Data generator control
-      DG_is_Running       =>  DG_is_Running        ,
-      DG_Reset            =>  DG_Reset             ,
-      DG_Mask             =>  DG_Mask              ,
+--      -- Data generator control
+--      DG_is_Running       =>  DG_is_Running        ,
+--      DG_Reset            =>  DG_Reset             ,
+--      DG_Mask             =>  DG_Mask              ,
 
       -- Common 
       trn_clk             =>  trn_clk              ,  -- IN  std_logic;

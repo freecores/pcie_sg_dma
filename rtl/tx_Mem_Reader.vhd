@@ -145,6 +145,7 @@ architecture Behavioral of tx_Mem_Reader is
   signal   eb_FIFO_RdEn_Mask_r1   : std_logic;
   signal   eb_FIFO_RdEn_Mask_r2   : std_logic;
   signal   ebFIFO_Rd_1DW          : std_logic;
+  signal   ebFIFO_Rd_1DW_r1       : std_logic;
   signal   eb_FIFO_qout_r1        : std_logic_vector(C_DBUS_WIDTH-1 downto 0);
   signal   eb_FIFO_qout_shift     : std_logic_vector(C_DBUS_WIDTH-1 downto 0);
   signal   eb_FIFO_qout_swapped   : std_logic_vector(C_DBUS_WIDTH-1 downto 0);
@@ -742,7 +743,8 @@ begin
      if trn_clk'event and trn_clk = '1' then
          mbuf_WE_i      <= DDR_FIFO_Write_mbuf_r1
                         or Regs_Write_mbuf_r2
-                        or (eb_FIFO_Write_mbuf_r1 or (Shift_1st_QWord_k and eb_FIFO_RdEn_Mask_rise_r1))
+                        or (eb_FIFO_Write_mbuf_r1 or (Shift_1st_QWord_k
+                            and eb_FIFO_RdEn_Mask_rise_r1 and not ebFIFO_Rd_1DW_r1))
                         ;
       end if;
    end process;
@@ -779,6 +781,7 @@ begin
    process ( trn_clk )
    begin
      if trn_clk'event and trn_clk = '1' then
+        ebFIFO_Rd_1DW_r1          <= ebFIFO_Rd_1DW;
         eb_FIFO_RdEn_Mask_rise    <= eb_FIFO_RdEn_Mask and not eb_FIFO_RdEn_Mask_r1;
         eb_FIFO_RdEn_Mask_rise_r1 <= eb_FIFO_RdEn_Mask_rise;
         eb_FIFO_RdEn_Mask_rise_r2 <= eb_FIFO_RdEn_Mask_rise_r1;
